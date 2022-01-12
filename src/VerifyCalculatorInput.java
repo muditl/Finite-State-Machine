@@ -7,9 +7,8 @@ public class VerifyCalculatorInput {
 
     static StateMachine verifier;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         verifier = generateMachine();
-        writeFileWithFSM(verifier);
         System.out.println("Project by Mudit Lodha.");
         System.out.println("This is a finite state machine which verifies whether the user input expression is a valid expression for a calculator");
         System.out.println("Enter the input to be tested");
