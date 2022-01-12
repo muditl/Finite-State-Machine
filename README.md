@@ -8,7 +8,9 @@ To run tests, run the TestStateMachine class.
 Both aforementioned classes use a finite state machine defined below: 
 
 Q = {A, B, C, D, E}
+
 Σ = {0,1,2,3,4,5,6,7,8,9, +, -, *, /, =}
+
 δ = 
 
 | **Current State** | **0,1,2,3,4,5,6,7,8,9** | **+,\*,/** | **-**      | **=**      |
@@ -20,6 +22,7 @@ Q = {A, B, C, D, E}
 | **E**             | Dead State              | Dead State | Dead State | Dead State |
 
 q0= A
+
 F = E
 
 The diagram:
