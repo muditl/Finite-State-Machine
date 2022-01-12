@@ -24,7 +24,7 @@ F = E
 
 The diagram:
 
-<img src="https://github.com/muditl/Finite-State-Machine/blob/3f33c4c20a4f94fc5cc8c83f08af29086bdfb7d4/media/FSM.jpg" style="zoom:50%;" 
+<img src="https://github.com/muditl/Finite-State-Machine/blob/3f33c4c20a4f94fc5cc8c83f08af29086bdfb7d4/media/FSM.jpg" style="zoom:20%;" 
 alt = "Diagram of the state machine defined."/>
 
 Some examples:
