@@ -24,9 +24,8 @@ F = E
 
 The diagram:
 
-
-
-!["Diagram of the state machine defined."](https://github.com/muditl/Finite-State-Machine/blob/3f33c4c20a4f94fc5cc8c83f08af29086bdfb7d4/media/FSM.jpg)
+<img src="https://github.com/muditl/Finite-State-Machine/blob/3f33c4c20a4f94fc5cc8c83f08af29086bdfb7d4/media/FSM.jpg" style="zoom:50%;" 
+alt = "Diagram of the state machine defined."/>
 
 Some examples:
 
