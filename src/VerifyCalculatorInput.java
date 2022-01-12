@@ -1,15 +1,16 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
 
 public class VerifyCalculatorInput {
 
     static StateMachine verifier;
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         verifier = generateMachine();
-        System.out.println("Project by Mudit Lodha");
+        writeFileWithFSM(verifier);
+        System.out.println("Project by Mudit Lodha.");
         System.out.println("This is a finite state machine which verifies whether the user input expression is a valid expression for a calculator");
         System.out.println("Enter the input to be tested");
         Scanner sc = new Scanner(System.in);
@@ -25,10 +26,10 @@ public class VerifyCalculatorInput {
 
     public static StateMachine generateMachine(){
         ArrayList<State> states = generateStates();
-        Set<Transition> transitionFunction = generateTransitions(states);
-        Set<String> alphabet = generateAlphabet();
+        ArrayList<Transition> transitionFunction = generateTransitions(states);
+        ArrayList<String> alphabet = generateAlphabet();
         State initialState = states.get(0);
-        Set<State> acceptingStates = new HashSet<>();
+        ArrayList<State> acceptingStates = new ArrayList<>();
         acceptingStates.add(states.get(4));
         return new StateMachine(states, alphabet, transitionFunction,
                 initialState,acceptingStates);
@@ -44,43 +45,41 @@ public class VerifyCalculatorInput {
         return states;
     }
 
-    public static Set<Transition> generateTransitions(ArrayList<State> states){
-        Set<Transition> transitions = new HashSet<>();
-        //define all transitions for integers
-        for (int i =0; i<10; i++){
-            //from A to B
-            Transition t1 = new Transition(states.get(0),states.get(1),String.valueOf(i));
-            //from B to B
-            Transition t2 = new Transition(states.get(1),states.get(1),String.valueOf(i));
-            //from C to B
-            Transition t3 = new Transition(states.get(2),states.get(1),String.valueOf(i));
-            //from D to B
-            Transition t4 = new Transition(states.get(3),states.get(1),String.valueOf(i));
-            transitions.add(t1);
-            transitions.add(t2);
-            transitions.add(t3);
-            transitions.add(t4);
-        }
+    public static ArrayList<Transition> generateTransitions(ArrayList<State> states){
 
-        //define transitions for arithmetic operators
-        //from B to C
+        //from A
+        ArrayList<Transition> transitions = new ArrayList<>(numberTransitions(states.get(0), states.get(1)));
+        transitions.add(new Transition(states.get(0), states.get(3), "-"));
+
+        //from B
+        transitions.addAll(numberTransitions(states.get(1),states.get(1)));
         transitions.add(new Transition(states.get(1),states.get(2),"+"));
         transitions.add(new Transition(states.get(1),states.get(2),"-"));
         transitions.add(new Transition(states.get(1),states.get(2),"*"));
         transitions.add(new Transition(states.get(1),states.get(2),"/"));
+        transitions.add(new Transition(states.get(1),states.get(4),"="));
 
-        //define transitions from A to D and C to D with -
-        transitions.add(new Transition(states.get(0), states.get(3), "-"));
+        //from C
+        transitions.addAll(numberTransitions(states.get(2),states.get(1)));
         transitions.add(new Transition(states.get(2), states.get(3), "-"));
 
-        //define transition from B to D with =
-        transitions.add(new Transition(states.get(1),states.get(4),"="));
+        //from D
+        transitions.addAll(numberTransitions(states.get(3),states.get(1)));
+
         return transitions;
     }
 
-    public static Set<String> generateAlphabet() {
 
-        Set<String> Strings = new HashSet<String>();
+    public static ArrayList<Transition> numberTransitions(State current, State next){
+        ArrayList<Transition> res = new ArrayList<>();
+        for (int i =0; i<10; i++)
+            res.add(new Transition(current, next, String.valueOf(i)));
+        return res;
+    }
+
+    public static ArrayList<String> generateAlphabet() {
+
+        ArrayList<String> Strings = new ArrayList<>();
 
         //add all integers
         for (int i=0; i<10; i++){
@@ -94,6 +93,12 @@ public class VerifyCalculatorInput {
         Strings.add("*");
         Strings.add("=");
         return Strings;
+    }
+
+    public static void writeFileWithFSM(StateMachine sm) throws IOException {
+        FileWriter fileWriter = new FileWriter("StateMachineText.txt");
+        fileWriter.write(sm.toString());
+        fileWriter.close();
     }
 
     private String removeSpaces(String s1) {

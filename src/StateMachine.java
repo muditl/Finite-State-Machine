@@ -1,29 +1,18 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.Set;
-
 
 public class StateMachine {
     public ArrayList<State> states;
-    public Set<String> alphabet;
-    public Set<Transition> transitionFunction;
+    public ArrayList<String> alphabet;
+    public ArrayList<Transition> transitionFunction;
     public State initialState;
-    public Set<State> acceptingStates;
+    public ArrayList<State> acceptingStates;
     public State deadState;
 
-    /**
-     * Constructor for state machine object.
-     * @param states ArrayList of states in the given machine.
-     * @param alphabet Set of String that form the alphabet of machine.
-     * @param transitionFunction Set of transitions that form the transition function.
-     * @param initialState Initial state of the machine.
-     * @param acceptingStates Set of accepting states.
-     */
-    public StateMachine(ArrayList<State> states, Set<String> alphabet,
-                        Set<Transition> transitionFunction, State initialState,
-                        Set<State> acceptingStates) {
+    public StateMachine(ArrayList<State> states, ArrayList<String> alphabet,
+                        ArrayList<Transition> transitionFunction, State initialState,
+                        ArrayList<State> acceptingStates) {
         this.states = states;
         this.alphabet = alphabet;
         this.transitionFunction = transitionFunction;
@@ -32,50 +21,26 @@ public class StateMachine {
         this.deadState = new State("Dead State");
     }
 
-    /**
-     * Getter for states.
-     * @return ArrayList of all states.
-     */
     public ArrayList<State> getStates() {
         return states;
     }
 
-    /**
-     * Getter for alphabets.
-     * @return Set of all alphabets.
-     */
-    public Set<String> getAlphabet() {
+    public ArrayList<String> getAlphabet() {
         return alphabet;
     }
 
-    /**
-     * Getter for transition function
-     * @return Set of all transitions in the transition function.
-     */
-    public Set<Transition> getTransitionFunction() {
+    public ArrayList<Transition> getTransitionFunction() {
         return transitionFunction;
     }
 
-    /**
-     * Getter for initial state.
-     * @return The Initial state.
-     */
     public State getInitialState() {
         return initialState;
     }
 
-    /**
-     * Getter for accepting states.
-     * @return Set of all accepting states.
-     */
-    public Set<State> getAcceptingStates() {
+    public ArrayList<State> getAcceptingStates() {
         return acceptingStates;
     }
 
-    /**
-     * Getter for dead state.
-     * @return Dead state.
-     */
     public State getDeadState() {
         return deadState;
     }
@@ -89,11 +54,8 @@ public class StateMachine {
         String[] in = input.split("");
         State current = getInitialState();
         for (String c:in){
-
-            //if the machine already reached dead state
             if(current==deadState)
                 return false;
-
             current = findNext(current,c);
         }
         return acceptingStates.contains(current);
@@ -102,12 +64,12 @@ public class StateMachine {
     /**
      * Function to run the finite state machine.
      * @param current The current state.
-     * @param in The next input.
+     * @param input The next input (of length 1).
      * @return The next state.
      */
-    private State findNext(State current, String in){
+    private State findNext(State current, String input){
         for (Transition t: transitionFunction){
-            if (t.getCurrent().equals(current) && t.getInput().equals(in))
+            if (t.getCurrent().equals(current) && t.getInput().equals(input))
                 return t.next;
         }
         return deadState;
@@ -115,24 +77,17 @@ public class StateMachine {
 
     /**
      * Reads a state machine in a pre specified format.
-     * @param sc Scanner.
-     * @return State Machine object.
      */
     public static StateMachine readStateMachine(Scanner sc){
         sc.nextLine();
         ArrayList<State> states = readStates(sc);
-        Set<String> alphabet = readAlphabet(sc);
-        Set<Transition> transitionFunction = readTransitionFunction(sc,states);
+        ArrayList<String> alphabet = readAlphabet(sc);
+        ArrayList<Transition> transitionFunction = readTransitionFunction(sc,states);
         State initialState = readInitialState(sc,states);
-        Set<State> acceptingStates = readAcceptingStates(sc, states);
+        ArrayList<State> acceptingStates = readAcceptingStates(sc, states);
         return new StateMachine(states,alphabet,transitionFunction,initialState,acceptingStates);
     }
 
-    /**
-     * Reads states.
-     * @param sc Scanner.
-     * @return ArrayList of states.
-     */
     public static ArrayList<State> readStates(Scanner sc){
         sc.useDelimiter("Alphabet\n");
         String statesString = sc.next();
@@ -146,16 +101,11 @@ public class StateMachine {
         return states;
     }
 
-    /**
-     * Reads alphabet.
-     * @param sc Scanner.
-     * @return Set of Strings that form the alphabet.
-     */
-    public static Set<String> readAlphabet(Scanner sc){
+    public static ArrayList<String> readAlphabet(Scanner sc){
         sc.useDelimiter("Transition Function\n");
         String alphabetString = sc.next();
         String[] alphabetArray = alphabetString.split("\n");
-        Set<String> alphabet = new HashSet<>();
+        ArrayList<String> alphabet = new ArrayList<>();
         for (String s: alphabetArray){
             alphabet.add(s.split("")[0]);
         }
@@ -163,17 +113,11 @@ public class StateMachine {
         return alphabet;
     }
 
-    /**
-     * Reads the transition function.
-     * @param sc Scanner
-     * @param states States of the machine.
-     * @return A set containing the transition function.
-     */
-    public static Set<Transition> readTransitionFunction(Scanner sc, ArrayList<State> states){
+    public static ArrayList<Transition> readTransitionFunction(Scanner sc, ArrayList<State> states){
         sc.useDelimiter("Initial State");
         String transitionsString = sc.next();
         String[] transitionsArray = transitionsString.split("\n");
-        Set<Transition> transitionFunction = new HashSet<>();
+        ArrayList<Transition> transitionFunction = new ArrayList<>();
         for (String transitionString: transitionsArray){
             transitionFunction.add(readTransition(transitionString,states));
         }
@@ -181,12 +125,6 @@ public class StateMachine {
         return  transitionFunction;
     }
 
-    /**
-     * Reads a single transition.
-     * @param transitionString String of the transition function.
-     * @param states Set of states in the machine.
-     * @return The Transition object.
-     */
     public static Transition readTransition(String transitionString, ArrayList<State> states){
         String[] split = transitionString.split("___");
         String currentStateString = split[0];
@@ -209,12 +147,6 @@ public class StateMachine {
         return new Transition(currentState, nextState, input);
     }
 
-    /**
-     * Reads the initial state.
-     * @param sc Scanner
-     * @param states States in the machine.
-     * @return The initial State.
-     */
     public static State readInitialState(Scanner sc, ArrayList<State> states){
         sc.useDelimiter("\nAccepting States");
         String stateString = sc.next();
@@ -230,18 +162,13 @@ public class StateMachine {
 
     }
 
-    /**
-     * Reads the accepting states in the machine.
-     * @param sc Scanner.
-     * @param states States in the machine.
-     * @return Set of all accepting states.
-     */
-    public static Set<State> readAcceptingStates(Scanner sc, ArrayList<State> states){
+    public static ArrayList<State> readAcceptingStates(Scanner sc, ArrayList<State> states){
         String statesString = sc.next();
         String[] statesArray = statesString.split("\n");
-        Set<State> accStates = new HashSet<>();
-        for (State state: states){
-            for (String sName: statesArray){
+        ArrayList<State> accStates = new ArrayList<>();
+
+        for (String sName: statesArray){
+            for (State state: states){
                 if (sName.equals(state.getName()))
                     accStates.add(state);
             }
@@ -249,10 +176,6 @@ public class StateMachine {
         return accStates;
     }
 
-    /**
-     * Converts State Machine Object into human readable string.
-     * @return The String.
-     */
     @Override
     public String toString(){
         StringBuilder res = new StringBuilder("States\n");
@@ -277,27 +200,14 @@ public class StateMachine {
 class State {
     public String name;
 
-    /**
-     * Constructor for State object.
-     * @param name Name of the state.
-     */
     public State(String name){
         this.name = name;
     }
 
-    /**
-     * Getter for name.
-     * @return name.
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Equals method for state.
-     * @param o Object to compare to.
-     * @return Boolean whether equals or not.
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -306,10 +216,6 @@ class State {
         return Objects.equals(name, state.name);
     }
 
-    /**
-     * Converts State object into a human readable string.
-     * @return The state string.
-     */
     @Override
     public String toString() {
         return getName();
@@ -321,47 +227,24 @@ class Transition {
     public State next;
     public String input;
 
-    /**
-     * Constructor for Transition object.
-     * @param current Current state.
-     * @param next Next State.
-     * @param input String input.
-     */
     public Transition(State current, State next, String input) {
         this.current = current;
         this.next = next;
         this.input = input;
     }
 
-    /**
-     * Getter for current state.
-     * @return Current state.
-     */
     public State getCurrent() {
         return current;
     }
 
-    /**
-     * Getter for next state.
-     * @return The next state.
-     */
     public State getNext() {
         return next;
     }
 
-    /**
-     * Getter for input.
-     * @return A Char input.
-     */
     public String getInput() {
         return input;
     }
 
-    /**
-     * Method to check if 2 transitions are the same.
-     * @param o Transition to check with.
-     * @return Boolean whether they are the same.
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -371,14 +254,11 @@ class Transition {
                 this.next.equals(that.next) && this.input.equals(that.input);
     }
 
-    /**
-     * Converts a transition object into human readable string.
-     * @return The transition string.
-     */
     @Override
     public String toString() {
         return  current +
                 "___" + input +
                 "___" + next;
     }
+
 }

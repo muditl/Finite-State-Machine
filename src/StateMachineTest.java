@@ -1,19 +1,15 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
-
 
 public class StateMachineTest {
     ArrayList<State> states;
-    Set<Transition> transitionFunction;
-    Set<String> alphabet;
+    ArrayList<Transition> transitionFunction;
+    ArrayList<String> alphabet;
     State initialState;
-    Set<State> acceptingStates;
+    ArrayList<State> acceptingStates;
     StateMachine stateMachine;
 
     @BeforeEach
@@ -22,7 +18,7 @@ public class StateMachineTest {
         transitionFunction = generateTransitions();
         alphabet = generateAlphabet();
         initialState = states.get(0);
-        acceptingStates = new HashSet<>();
+        acceptingStates = new ArrayList<>();
         acceptingStates.add(states.get(4));
         stateMachine =  new StateMachine(states, alphabet, transitionFunction,
                 initialState,acceptingStates);
@@ -30,7 +26,7 @@ public class StateMachineTest {
 
     @Test
     void removeSpacesTest() {
-        String s1  = new String("da a 3 3 3   addad     adad \n adadad\t\t2\tddd");
+        String s1  = "da a 3 3 3   addad     adad \n adadad\t\t2\tddd";
         String s2 =removeSpaces(s1);
         assertEquals("daa333addadadadadadad2ddd", s2);
     }
@@ -122,9 +118,9 @@ public class StateMachineTest {
 
     @Test
     void testReadStateMachine() {
-        Scanner sc = new Scanner(s);
-        StateMachine sm = StateMachine.readStateMachine(sc);
-        //System.out.println(sm.toString()); //dont know how else to check
+        Scanner sc = new Scanner(FSMString());
+        StateMachine actual = StateMachine.readStateMachine(sc);
+        assertEquals(FSMString(), actual.toString()); //dont know how else to check
     }
 
 
@@ -139,7 +135,8 @@ public class StateMachineTest {
 
     @Test
     void testReadAlphabet(){
-        String toRead = "1\n" +
+        String toRead = "0\n" +
+                "1\n" +
                 "2\n" +
                 "3\n" +
                 "4\n" +
@@ -148,15 +145,14 @@ public class StateMachineTest {
                 "7\n" +
                 "8\n" +
                 "9\n" +
-                "0\n" +
                 "+\n" +
                 "-\n" +
                 "*\n" +
                 "/\n" +
                 "=\nTransition Function\n some trans";
         Scanner sc = new Scanner(toRead);
-        Set<String> expected = generateAlphabet();
-        Set<String> actual = StateMachine.readAlphabet(sc);
+        ArrayList<String> expected = generateAlphabet();
+        ArrayList<String> actual = StateMachine.readAlphabet(sc);
         assertEquals(expected,actual);
     }
 
@@ -211,8 +207,8 @@ public class StateMachineTest {
                 "B___2___B\n"+
                 "Initial State";
         Scanner sc = new Scanner(toRead);
-        Set<Transition> expected = generateTransitions();
-        Set<Transition> actual = StateMachine.readTransitionFunction(sc,generateStates());
+        ArrayList<Transition> expected = generateTransitions();
+        ArrayList<Transition> actual = StateMachine.readTransitionFunction(sc,generateStates());
         assertEquals(expected.size(),actual.size()); //dont know how to compare each element in a set.
     }
 
@@ -229,29 +225,22 @@ public class StateMachineTest {
     void testReadAccStates(){
         String toRead= "E";
         Scanner sc = new Scanner(toRead);
-        Set<State> expected= new HashSet<>();
+        ArrayList<State> expected= new ArrayList<>();
         expected.add(generateStates().get(4));
-        Set<State> actual = StateMachine.readAcceptingStates(sc,generateStates());
+        ArrayList<State> actual = StateMachine.readAcceptingStates(sc,generateStates());
         assertEquals(expected.size(), actual.size());
     }
 
     /*
+    -----------------------------------------------------
     These are all the methods to set up the testing suite.
+    -----------------------------------------------------
     */
 
-    /**
-     * Remove spaces from a string.
-     * @param s1 string.
-     * @return string without spaces.
-     */
     private String removeSpaces(String s1) {
         return s1.replaceAll("\\s","");
     }
 
-    /**
-     * Generates 5 states.
-     * @return An ArrayList of 5 states.
-     */
     public ArrayList<State> generateStates(){
         ArrayList<State> states = new ArrayList<>();
         states.add(new State("A"));
@@ -262,51 +251,41 @@ public class StateMachineTest {
         return states;
     }
 
-    /**
-     * Generate a transition function.
-     * @return Set of transitions for a machine that checks simple arithmetic input.
-     */
-    public Set<Transition> generateTransitions(){
-        Set<Transition> transitions = new HashSet<>();
-        //define all transitions for integers
-        for (int i =0; i<10; i++){
-            //from A to B
-            Transition t1 = new Transition(states.get(0),states.get(1),String.valueOf(i));
-            //from B to B
-            Transition t2 = new Transition(states.get(1),states.get(1),String.valueOf(i));
-            //from C to B
-            Transition t3 = new Transition(states.get(2),states.get(1),String.valueOf(i));
-            //from D to B
-            Transition t4 = new Transition(states.get(3),states.get(1),String.valueOf(i));
-            transitions.add(t1);
-            transitions.add(t2);
-            transitions.add(t3);
-            transitions.add(t4);
-        }
+    public ArrayList<Transition> generateTransitions(){
 
-        //define transitions for arithmetic operators
-        //from B to C
+
+        //from A
+        ArrayList<Transition> transitions = new ArrayList<>(numberTransitions(states.get(0), states.get(1)));
+        transitions.add(new Transition(states.get(0), states.get(3), "-"));
+
+        //from B
+        transitions.addAll(numberTransitions(states.get(1),states.get(1)));
         transitions.add(new Transition(states.get(1),states.get(2),"+"));
         transitions.add(new Transition(states.get(1),states.get(2),"-"));
         transitions.add(new Transition(states.get(1),states.get(2),"*"));
         transitions.add(new Transition(states.get(1),states.get(2),"/"));
+        transitions.add(new Transition(states.get(1),states.get(4),"="));
 
-        //define transitions from A to D and C to D with -
-        transitions.add(new Transition(states.get(0), states.get(3), "-"));
+        //from C
+        transitions.addAll(numberTransitions(states.get(2),states.get(1)));
         transitions.add(new Transition(states.get(2), states.get(3), "-"));
 
-        //define transition from B to D with =
-        transitions.add(new Transition(states.get(1),states.get(4),"="));
+        //from D
+        transitions.addAll(numberTransitions(states.get(3),states.get(1)));
+
         return transitions;
     }
 
-    /**
-     * Generates the alphabet.
-     * @return A set of strings that is the alphabet for a simple arithmetic calculator.
-     */
-    public Set<String> generateAlphabet() {
+    public ArrayList<Transition> numberTransitions(State current, State next){
+        ArrayList<Transition> res = new ArrayList<>();
+        for (int i =0; i<10; i++)
+            res.add(new Transition(current, next, String.valueOf(i)));
+        return res;
+    }
 
-        Set<String> Strings = new HashSet<String>();
+    public ArrayList<String> generateAlphabet() {
+
+        ArrayList<String> Strings = new ArrayList<>();
 
         //add all integers
         for (int i=0; i<10; i++){
@@ -316,86 +295,91 @@ public class StateMachineTest {
         //add all arithmetic operators and =
         Strings.add("+");
         Strings.add("-");
-        Strings.add("/");
         Strings.add("*");
+        Strings.add("/");
         Strings.add("=");
         return Strings;
     }
 
-    //String to test reading
-    String s = "States\n" +
-            "A\n" +
-            "B\n" +
-            "C\n" +
-            "D\n" +
-            "E\n" +
-            "Alphabet\n" +
-            "1\n" +
-            "2\n" +
-            "3\n" +
-            "4\n" +
-            "5\n" +
-            "6\n" +
-            "7\n" +
-            "8\n" +
-            "9\n" +
-            "0\n" +
-            "+\n" +
-            "-\n" +
-            "*\n" +
-            "/\n" +
-            "=\n" +
-            "Transition Function\n" +
-            "B___1___B\n" +
-            "A___0___B\n" +
-            "A___7___B\n" +
-            "A___5___B\n" +
-            "D___8___B\n" +
-            "B___*___C\n" +
-            "B___3___B\n" +
-            "B___7___B\n" +
-            "C___7___B\n" +
-            "B___/___C\n" +
-            "C___2___B\n" +
-            "D___5___B\n" +
-            "C___4___B\n" +
-            "C___0___B\n" +
-            "C___-___D\n" +
-            "A___2___B\n" +
-            "B___8___B\n" +
-            "D___9___B\n" +
-            "C___1___B\n" +
-            "B___4___B\n" +
-            "D___6___B\n" +
-            "D___2___B\n" +
-            "A___8___B\n" +
-            "D___3___B\n" +
-            "D___4___B\n" +
-            "A___6___B\n" +
-            "C___6___B\n" +
-            "B___0___B\n" +
-            "D___0___B\n" +
-            "B___5___B\n" +
-            "C___9___B\n" +
-            "A___9___B\n" +
-            "B___9___B\n" +
-            "D___7___B\n" +
-            "C___3___B\n" +
-            "B___+___C\n" +
-            "C___5___B\n" +
-            "D___1___B\n" +
-            "B___-___C\n" +
-            "A___4___B\n" +
-            "A___1___B\n" +
-            "A___-___D\n" +
-            "A___3___B\n" +
-            "B___6___B\n" +
-            "C___8___B\n" +
-            "B___=___E\n" +
-            "B___2___B\n" +
-            "Initial State\n" +
-            "A\n" +
-            "Accepting States\n" +
-            "E\n";
+    // Generate a string to test the Read method.
+    public String FSMString() {
+
+        return "States\n" +
+                "A\n" +
+                "B\n" +
+                "C\n" +
+                "D\n" +
+                "E\n" +
+                "Alphabet\n" +
+                "*\n" +
+                "+\n" +
+                "-\n" +
+                "/\n" +
+                "0\n" +
+                "1\n" +
+                "2\n" +
+                "3\n" +
+                "4\n" +
+                "5\n" +
+                "6\n" +
+                "7\n" +
+                "8\n" +
+                "9\n" +
+                "=\n" +
+                "Transition Function\n" +
+                "A___0___B\n" +
+                "A___1___B\n" +
+                "A___2___B\n" +
+                "A___3___B\n" +
+                "A___4___B\n" +
+                "A___5___B\n" +
+                "A___6___B\n" +
+                "A___7___B\n" +
+                "A___8___B\n" +
+                "A___9___B\n" +
+                "A___-___D\n" +
+                "B___0___B\n" +
+                "B___1___B\n" +
+                "B___2___B\n" +
+                "B___3___B\n" +
+                "B___4___B\n" +
+                "B___5___B\n" +
+                "B___6___B\n" +
+                "B___7___B\n" +
+                "B___8___B\n" +
+                "B___9___B\n" +
+                "B___+___C\n" +
+                "B___-___C\n" +
+                "B___*___C\n" +
+                "B___/___C\n" +
+                "B___=___E\n" +
+                "C___0___B\n" +
+                "C___1___B\n" +
+                "C___2___B\n" +
+                "C___3___B\n" +
+                "C___4___B\n" +
+                "C___5___B\n" +
+                "C___6___B\n" +
+                "C___7___B\n" +
+                "C___8___B\n" +
+                "C___9___B\n" +
+                "C___-___D\n" +
+                "D___0___B\n" +
+                "D___1___B\n" +
+                "D___2___B\n" +
+                "D___3___B\n" +
+                "D___4___B\n" +
+                "D___5___B\n" +
+                "D___6___B\n" +
+                "D___7___B\n" +
+                "D___8___B\n" +
+                "D___9___B\n" +
+                "Initial State\n" +
+                "A\n" +
+                "Accepting States\n" +
+                "E\n" +
+                "B\n" +
+                "A\n";
+    }
 
 }
